@@ -12,8 +12,8 @@ importers:
         specifier: ^24.0.4
         version: 24.0.4
       '@types/node':
-        specifier: 24.1.0
-        version: 24.1.0
+        specifier: 25.5.0
+        version: 25.5.0
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -182,8 +182,8 @@ packages:
   '@tsconfig/node24@24.0.4':
     resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
 
-  '@types/node@24.1.0':
-    resolution: {integrity: sha512-ut5FthK5moxFKH2T1CUOC6ctR67rQRvvHdFLCD2Ql6KXmMuCrjsSsRI9UsLCm9M18BMwClv4pn327UvB7eeO1w==}
+  '@types/node@25.5.0':
+    resolution: {integrity: sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw==}
 
   esbuild@0.27.3:
     resolution: {integrity: sha512-8VwMnyGCONIs6cWue2IdpHxHnAjzxnw2Zr7MkVxB2vjmQ2ivqGFb4LEG3SMnv0Gb2F/G/2yA8zUaiL1gywDCCg==}
@@ -211,8 +211,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@7.8.0:
-    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
 snapshots:
 
@@ -296,9 +296,9 @@ snapshots:
 
   '@tsconfig/node24@24.0.4': {}
 
-  '@types/node@24.1.0':
+  '@types/node@25.5.0':
     dependencies:
-      undici-types: 7.8.0
+      undici-types: 7.18.2
 
   esbuild@0.27.3:
     optionalDependencies:
@@ -347,4 +347,4 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  undici-types@7.8.0: {}
+  undici-types@7.18.2: {}
