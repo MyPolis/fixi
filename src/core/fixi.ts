@@ -44,9 +44,9 @@ export class Fixi {
 		this.process(document.body);
 	}
 
-	#send(elt: EventTarget, type: string, detail: Record<string, unknown>, bub: boolean = true): boolean {
+	#send(elt: EventTarget, type: string, detail: Record<string, unknown>, bubbles: boolean = true): boolean {
 		return elt.dispatchEvent(
-			new CustomEvent("fx:" + type, {detail, cancelable: true, bubbles: bub !== false, composed: true})
+			new CustomEvent("fx:" + type, {detail, cancelable: true, bubbles: bubbles, composed: true})
 		);
 	}
 
@@ -76,6 +76,30 @@ export class Fixi {
 
 		this.#boundElements.add(elt);
 		this.#elementRequests.set(elt, new Set<FixiConfig>());
+
+		// Setup indicator if present
+		if (elt.hasAttribute("fx-indicator")) {
+			const indicatorSelector = this.#attr(elt, "fx-indicator");
+			const indicator = indicatorSelector === "" ? elt : document.querySelector(indicatorSelector);
+			const indicatorClass = this.#attr(elt, "fx-indicator-class", "fx-requesting");
+			const indicatorAttr = this.#attr(elt, "fx-indicator-attr");
+
+			const setIndicator = (active: boolean, isError = false) => {
+				if (indicatorClass && indicator) {
+					indicator.classList.toggle(indicatorClass, active);
+					indicator.classList.toggle("fx-error", isError);
+				}
+				if (indicatorAttr && indicator) {
+					if (active) indicator.setAttribute(indicatorAttr, "");
+					else indicator.removeAttribute(indicatorAttr);
+				}
+			};
+
+			elt.addEventListener("fx:before", () => setIndicator(true));
+			elt.addEventListener("fx:after", () => setIndicator(false));
+			elt.addEventListener("fx:error", () => setIndicator(false, true));
+			elt.addEventListener("fx:finally", () => setIndicator(false));
+		}
 
 		const handler = async (evt: Event) => {
 			const reqs = this.#elementRequests.get(elt)!;
@@ -117,7 +141,6 @@ export class Fixi {
 				const params = new URLSearchParams();
 				if (cfg.body) {
 					cfg.body.forEach((value, key) => {
-						// FormData can contain Files, extract the name safely for URL serialization
 						params.append(key, value instanceof File ? value.name : value);
 					});
 				}
@@ -138,7 +161,6 @@ export class Fixi {
 
 				if (!this.#send(elt, "before", {cfg, requests: reqs})) return;
 
-				// Construct a clean RequestInit object
 				const fetchInit: RequestInit = {
 					method: cfg.method,
 					headers: cfg.headers,

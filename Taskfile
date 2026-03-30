@@ -6,11 +6,22 @@ PATH="./node_modules/.bin:$PATH"
 
 function build {
   rm -rf ./dist
-  tsc --project ./tsconfig.json
+
+  # Build JavaScript bundles with esbuild (minified)
+  esbuild ./src/core/index.ts --bundle --minify --format=esm --outfile=./dist/core/index.js --platform=browser
+  # esbuild ./src/extensions/disable.ts --bundle --minify --format=esm --outfile=./dist/extensions/disable.js --platform=browser
+
+  # Generate TypeScript declarations
+  tsc --project ./tsconfig.json --emitDeclarationOnly --declaration --declarationDir ./dist/types --outDir ./dist/types
+
+  # Report bundle sizes
+  echo ""
+  echo "Bundle sizes:"
+  ls -lh ./dist/core/index.js ./dist/extensions/*.js 2>/dev/null | awk '{print $9, $5}'
 }
 
 function test {
-  node --import=tsx --test $(find ./src -name "*.test.ts")
+  node --import=tsx --test "./src/**/*.test.ts"
 }
 
 function format {
