@@ -1,0 +1,31 @@
+{
+	"name": "@mypolis.eu/fixi",
+	"version": "0.0.0",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/types/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"./dist",
+		"./package.json"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mypolis/fixi"
+	},
+	"keywords": [],
+	"author": "Guilherme Rosado <guilherme.rosado@mypolis.eu>",
+	"license": "MIT",
+	"scripts": {
+		"prepublishOnly": "./Taskfile build"
+	},
+	"devDependencies": {
+		"@tsconfig/node24": "^24.0.4",
+		"@types/node": "24.1.0",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3"
+	}
+}
