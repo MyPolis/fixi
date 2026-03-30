@@ -1,15 +1,9 @@
-import {beforeEach, test} from "node:test";
 import assert from "node:assert";
+import {beforeEach, test} from "node:test";
+
+import {cleanupTest, injectMockFetch, setupDOM, simulateIntersection} from "../test/helpers/index.js";
 
 // Setup DOM environment FIRST (must happen before importing Fixi)
-import {
-	setupDOM,
-	cleanupTest,
-	simulateIntersection,
-	injectMockFetch,
-	mockFetch
-} from "../test/helpers/index.js";
-
 setupDOM();
 
 // Now import Fixi after DOM is ready
