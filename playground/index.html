@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>Fixi Playground</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2rem;
+				line-height: 1.6;
+			}
+
+			h1 {
+				color: #333;
+				border-bottom: 2px solid #0066cc;
+				padding-bottom: 0.5rem;
+			}
+
+			/* Demo sections */
+			.demo {
+				background: #f5f5f5;
+				padding: 1.5rem;
+				margin: 1.5rem 0;
+				border-radius: 8px;
+			}
+
+			.demo h3 {
+				margin-top: 0;
+				color: #555;
+			}
+
+			/* Buttons */
+			button {
+				padding: 0.75rem 1.5rem;
+				margin: 0.5rem;
+				border: none;
+				background: #0066cc;
+				color: white;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 0.9rem;
+			}
+
+			button:hover {
+				background: #0052a3;
+			}
+
+			button.fx-requesting {
+				opacity: 0.6;
+				cursor: wait;
+			}
+
+			/* Result containers */
+			.result {
+				margin-top: 1rem;
+				padding: 1rem;
+				background: white;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				min-height: 50px;
+			}
+
+			/* Code styling */
+			code {
+				background: #e8e8e8;
+				padding: 0.2rem 0.4rem;
+				border-radius: 3px;
+				font-size: 0.9em;
+			}
+
+			pre {
+				background: #2d2d2d;
+				color: #f8f8f2;
+				padding: 1rem;
+				border-radius: 4px;
+				overflow-x: auto;
+			}
+
+			/* Intersection observer demo */
+			.intersection-demo {
+				height: 150vh;
+				background: linear-gradient(to bottom, #f5f5f5 0%, #e0e0e0 100%);
+				padding: 2rem;
+				margin: 2rem 0;
+				border-radius: 8px;
+			}
+
+			.intersection-box {
+				background: #0066cc;
+				color: white;
+				padding: 2rem;
+				border-radius: 8px;
+				text-align: center;
+				margin-top: 100vh;
+			}
+
+			/* View Transitions Demo */
+			.animation-card {
+				background: #0066cc;
+				color: white;
+				padding: 2rem;
+				border-radius: 12px;
+				margin-top: 1rem;
+				min-height: 120px;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+				view-transition-name: anim-card;
+			}
+
+			.anim-btn {
+				margin: 0.25rem;
+			}
+
+			.anim-note {
+				font-size: 0.85rem;
+				color: #666;
+				margin-top: 0.5rem;
+			}
+
+			/* Animation keyframes */
+			@keyframes slide-out {
+				from {
+					transform: translateX(0);
+					opacity: 1;
+				}
+				to {
+					transform: translateX(-100%);
+					opacity: 0;
+				}
+			}
+
+			@keyframes slide-in {
+				from {
+					transform: translateX(100%);
+					opacity: 0;
+				}
+				to {
+					transform: translateX(0);
+					opacity: 1;
+				}
+			}
+
+			@keyframes zoom-out {
+				from {
+					transform: scale(1);
+					opacity: 1;
+				}
+				to {
+					transform: scale(0.5);
+					opacity: 0;
+				}
+			}
+
+			@keyframes zoom-in {
+				from {
+					transform: scale(1.5);
+					opacity: 0;
+				}
+				to {
+					transform: scale(1);
+					opacity: 1;
+				}
+			}
+
+			@keyframes flip-out {
+				from {
+					transform: perspective(400px) rotateY(0deg);
+					opacity: 1;
+				}
+				to {
+					transform: perspective(400px) rotateY(90deg);
+					opacity: 0;
+				}
+			}
+
+			@keyframes flip-in {
+				from {
+					transform: perspective(400px) rotateY(-90deg);
+					opacity: 0;
+				}
+				to {
+					transform: perspective(400px) rotateY(0deg);
+					opacity: 1;
+				}
+			}
+
+			@keyframes fade-blur-out {
+				from {
+					filter: blur(0px);
+					opacity: 1;
+				}
+				to {
+					filter: blur(10px);
+					opacity: 0;
+				}
+			}
+
+			@keyframes fade-blur-in {
+				from {
+					filter: blur(10px);
+					opacity: 0;
+				}
+				to {
+					filter: blur(0px);
+					opacity: 1;
+				}
+			}
+
+			@keyframes fade-out {
+				from {
+					opacity: 1;
+				}
+				to {
+					opacity: 0;
+				}
+			}
+
+			@keyframes fade-in {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+
+			/* View Transition pseudo-elements - triggered by body class */
+			body.vt-slide ::view-transition-old(anim-card) {
+				animation: slide-out 0.4s ease-in-out;
+			}
+			body.vt-slide ::view-transition-new(anim-card) {
+				animation: slide-in 0.4s ease-in-out;
+			}
+
+			body.vt-zoom ::view-transition-old(anim-card) {
+				animation: zoom-out 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			body.vt-zoom ::view-transition-new(anim-card) {
+				animation: zoom-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			body.vt-flip ::view-transition-old(anim-card) {
+				animation: flip-out 0.5s ease-in-out;
+			}
+			body.vt-flip ::view-transition-new(anim-card) {
+				animation: flip-in 0.5s ease-in-out;
+			}
+
+			body.vt-blur ::view-transition-old(anim-card) {
+				animation: fade-blur-out 0.4s ease-out;
+			}
+			body.vt-blur ::view-transition-new(anim-card) {
+				animation: fade-blur-in 0.4s ease-out;
+			}
+
+			/* Default animation when no button is active */
+			::view-transition-old(anim-card) {
+				animation: fade-out 0.3s ease-out;
+			}
+			::view-transition-new(anim-card) {
+				animation: fade-in 0.3s ease-out;
+			}
+		</style>
+
+		<script type="module">
+			import "../dist/core/index.js";
+
+			// View Transitions: Set body class based on which animation button was clicked
+			document.querySelectorAll("[data-vt-anim]").forEach((btn) => {
+				btn.addEventListener("click", () => {
+					document.body.className = document.body.className.replace(/vt-\w+/g, "").trim();
+					document.body.classList.add(`vt-${btn.dataset.vtAnim}`);
+				});
+			});
+
+			// Clear animation class after transition completes
+			document.getElementById("anim-target").addEventListener("fx:finally", () => {
+				document.body.className = document.body.className.replace(/vt-\w+/g, "").trim();
+			});
+		</script>
+	</head>
+	<body>
+		<h1>🚀 Fixi Playground</h1>
+		<p>Test the library with real API calls. Check the console for event logs.</p>
+
+		<div class="demo">
+			<h3>Basic Click</h3>
+			<p>Simple <code>fx-action</code> with <code>fx-target</code> and <code>fx-swap</code></p>
+			<button
+				fx-action="/api/test"
+				fx-target="#result1"
+				fx-swap="innerHTML"
+			>
+				Load Content
+			</button>
+			<div
+				id="result1"
+				class="result"
+			>
+				Click the button to load content...
+			</div>
+		</div>
+
+		<div class="demo">
+			<h3>With Loading Indicator</h3>
+			<p>Using <code>fx-indicator</code> to show loading state</p>
+			<button
+				fx-action="/api/delay"
+				fx-target="#result2"
+				fx-swap="innerHTML"
+				fx-indicator
+			>
+				Load with Delay (1s)
+			</button>
+			<div
+				id="result2"
+				class="result"
+			>
+				This will take 1 second...
+			</div>
+		</div>
+
+		<div class="demo">
+			<h3>Custom Trigger: Mouseenter</h3>
+			<p>Using <code>fx-trigger="mouseenter"</code></p>
+			<div
+				fx-action="/api/like"
+				fx-target="#result3"
+				fx-swap="innerHTML"
+				fx-trigger="mouseenter"
+				style="background: #f0f0f0; padding: 1rem; border-radius: 4px; cursor: pointer"
+			>
+				👆 Hover over this box
+			</div>
+			<div
+				id="result3"
+				class="result"
+			>
+				Hover to trigger...
+			</div>
+		</div>
+
+		<div class="demo">
+			<h3>Multiple Attributes</h3>
+			<p>Using <code>fx-indicator-attr</code> for accessibility</p>
+			<button
+				fx-action="/api/delay"
+				fx-target="#result4"
+				fx-swap="innerHTML"
+				fx-indicator
+				fx-indicator-attr="disabled,aria-busy"
+			>
+				Load (with disabled state)
+			</button>
+			<div
+				id="result4"
+				class="result"
+			>
+				Button will disable during request...
+			</div>
+		</div>
+
+		<div class="demo">
+			<h3>✨ View Transitions (Chrome 111+)</h3>
+			<p>Smooth animated transitions between content swaps.</p>
+
+			<div style="margin-bottom: 1rem">
+				<button
+					class="anim-btn"
+					data-vt-anim="slide"
+					fx-action="/api/animation/slide"
+					fx-target="#anim-target"
+					fx-swap="innerHTML"
+				>
+					🌊 Slide
+				</button>
+				<button
+					class="anim-btn"
+					data-vt-anim="zoom"
+					fx-action="/api/animation/zoom"
+					fx-target="#anim-target"
+					fx-swap="innerHTML"
+				>
+					🔍 Zoom
+				</button>
+				<button
+					class="anim-btn"
+					data-vt-anim="flip"
+					fx-action="/api/animation/flip"
+					fx-target="#anim-target"
+					fx-swap="innerHTML"
+				>
+					🔄 Flip
+				</button>
+				<button
+					class="anim-btn"
+					data-vt-anim="blur"
+					fx-action="/api/animation/blur"
+					fx-target="#anim-target"
+					fx-swap="innerHTML"
+				>
+					🌫️ Blur
+				</button>
+			</div>
+
+			<div
+				id="anim-target"
+				class="animation-card"
+			>
+				<h4 style="margin: 0 0 0.5rem 0">✨ Animation Demo</h4>
+				<p style="margin: 0; opacity: 0.9">Click a button above to see different View Transition animations!</p>
+			</div>
+
+			<p class="anim-note">
+				<strong>Note:</strong> View Transitions only work in Chrome 111+. Other browsers will show instant
+				swaps.
+			</p>
+		</div>
+
+		<div class="intersection-demo">
+			<h3>Intersection Observer</h3>
+			<p>Scroll down to trigger when element comes into view</p>
+			<div
+				class="intersection-box"
+				fx-action="/api/test"
+				fx-target="#result5"
+				fx-swap="innerHTML"
+				fx-trigger="intersect"
+				fx-intersect-threshold="0.5"
+			>
+				📦 Scroll to see me!
+				<div id="result5">Will load when 50% visible...</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -25,9 +25,11 @@
 	"devDependencies": {
 		"@tsconfig/node24": "^24.0.4",
 		"@types/node": "25.5.0",
+		"concurrently": "^9.2.1",
 		"esbuild": "^0.27.4",
 		"happy-dom": "^20.8.9",
 		"tsx": "^4.21.0",
-		"typescript": "^6.0.2"
+		"typescript": "^6.0.2",
+		"vite": "^8.0.3"
 	}
 }

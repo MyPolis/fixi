@@ -4,6 +4,19 @@ PATH="./node_modules/.bin:$PATH"
 
 [[ -f "./.env" ]] && source ./.env
 
+function dev {
+  echo "🚀 Starting dev servers..."
+  echo "   API Server (with watch): http://localhost:3001"
+  echo "   Vite (Frontend): http://localhost:3000"
+  echo ""
+  
+  concurrently \
+    --names "API,VITE" \
+    --prefix-colors "cyan,magenta" \
+    "node --import=tsx --watch ./playground/server.ts" \
+    "vite --config ./playground/vite.config.ts"
+}
+
 function build {
   rm -rf ./dist
 
