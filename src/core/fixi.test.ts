@@ -28,10 +28,7 @@ function mockFetch(response: string, trackCalls?: {calls: string[]}) {
 		if (trackCalls) {
 			trackCalls.calls.push(urlString);
 		}
-		return {
-			status: 200,
-			text: async () => response
-		} as Response;
+		return new Response(response);
 	};
 }
 
