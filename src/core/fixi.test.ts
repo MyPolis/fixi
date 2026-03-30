@@ -1,6 +1,8 @@
 import {beforeEach, test} from "node:test";
 import assert from "node:assert";
 
+import type {FxConfigEvent} from "../events/fx-config.js";
+
 // Setup DOM environment FIRST before importing Fixi
 import {Window} from "happy-dom";
 
@@ -10,16 +12,59 @@ const window = new Window();
 (globalThis as any).MutationObserver = window.MutationObserver;
 (globalThis as any).CustomEvent = window.CustomEvent;
 (globalThis as any).fetch = window.fetch;
+(globalThis as any).Event = window.Event;
 
-// Import event class for typing
-import type {FxConfigEvent} from "../events/fx-config.js";
+// Mock IntersectionObserver for testing
+let mockIntersectionCallbacks = new Map<Element, IntersectionObserverCallback>();
+let mockIntersectionObservers = new Map<Element, {threshold: number; rootMargin: string}>();
 
-// Now import Fixi after DOM is ready
-const {Fixi} = await import("./fixi.js");
+class MockIntersectionObserver implements IntersectionObserver {
+	root: Element | Document | null = null;
+	rootMargin: string = "0px";
+	scrollMargin: string = "0px";
+	thresholds: readonly number[] = [0];
 
-beforeEach(() => {
-	document.body.innerHTML = "";
-});
+	constructor(
+		private callback: IntersectionObserverCallback,
+		private options?: IntersectionObserverInit
+	) {
+		this.rootMargin = options?.rootMargin || "0px";
+		this.scrollMargin = options?.rootMargin || "0px";
+		this.thresholds = options?.threshold !== undefined ? [options.threshold as number] : [0];
+	}
+
+	observe(target: Element): void {
+		mockIntersectionCallbacks.set(target, this.callback);
+		mockIntersectionObservers.set(target, {
+			threshold: (this.options?.threshold as number) || 0,
+			rootMargin: this.options?.rootMargin || "0px"
+		});
+	}
+
+	unobserve(target: Element): void {
+		mockIntersectionCallbacks.delete(target);
+		mockIntersectionObservers.delete(target);
+	}
+
+	disconnect(): void {
+		mockIntersectionCallbacks.clear();
+		mockIntersectionObservers.clear();
+	}
+
+	takeRecords(): IntersectionObserverEntry[] {
+		return [];
+	}
+}
+
+(globalThis as any).IntersectionObserver = MockIntersectionObserver;
+
+// Helper to simulate intersection
+function simulateIntersection(target: Element, isIntersecting: boolean = true) {
+	const callback = mockIntersectionCallbacks.get(target);
+	if (callback) {
+		callback([{isIntersecting, target} as IntersectionObserverEntry], new MockIntersectionObserver(callback));
+	}
+}
 
 // Helper to create a mock fetch that returns a text response
 function mockFetch(response: string, trackCalls?: {calls: string[]}) {
@@ -31,6 +76,13 @@ function mockFetch(response: string, trackCalls?: {calls: string[]}) {
 		return new Response(response);
 	};
 }
+
+// Now import Fixi after DOM is ready
+const {Fixi} = await import("./fixi.js");
+
+beforeEach(() => {
+	document.body.innerHTML = "";
+});
 
 test("Fixi initializes and creates instance", () => {
 	const fixi = new Fixi();
@@ -147,6 +199,30 @@ test("Indicator toggles attribute via fx-indicator-attr", () => {
 	assert.ok(!button.hasAttribute("disabled"), "Should remove disabled attribute");
 });
 
+test("Indicator toggles multiple attributes via fx-indicator-attr", () => {
+	const fixi = new Fixi();
+
+	document.body.innerHTML = `<button fx-action="/test" fx-indicator fx-indicator-attr="disabled,aria-busy,aria-disabled">Click</button>`;
+	const button = document.querySelector("[fx-action]")!;
+
+	fixi.process(button);
+
+	// Verify no attributes initially
+	assert.ok(!button.hasAttribute("disabled"), "Should not have disabled initially");
+	assert.ok(!button.hasAttribute("aria-busy"), "Should not have aria-busy initially");
+	assert.ok(!button.hasAttribute("aria-disabled"), "Should not have aria-disabled initially");
+
+	button.dispatchEvent(new CustomEvent("fx:before"));
+	assert.ok(button.hasAttribute("disabled"), "Should add disabled");
+	assert.ok(button.hasAttribute("aria-busy"), "Should add aria-busy");
+	assert.ok(button.hasAttribute("aria-disabled"), "Should add aria-disabled");
+
+	button.dispatchEvent(new CustomEvent("fx:after"));
+	assert.ok(!button.hasAttribute("disabled"), "Should remove disabled");
+	assert.ok(!button.hasAttribute("aria-busy"), "Should remove aria-busy");
+	assert.ok(!button.hasAttribute("aria-disabled"), "Should remove aria-disabled");
+});
+
 test("Fixi ignores elements with fx-ignore attribute", () => {
 	const fixi = new Fixi();
 
@@ -186,16 +262,31 @@ test("Fixi dispatches correct event sequence", () => {
 	assert.deepStrictEqual(events, ["init", "inited"], "Should fire init then inited");
 });
 
-test("Fixi supports fx-trigger custom event", () => {
+test("Fixi supports fx-trigger custom event", async () => {
 	const fixi = new Fixi();
+	const trackCalls: {calls: string[]} = {calls: []};
 
-	document.body.innerHTML = `<div fx-action="/test" fx-trigger="mouseenter">Hover</div>`;
+	document.body.innerHTML = `
+		<div id="test" fx-action="/test" fx-trigger="mouseenter" fx-target="#test">Hover</div>
+	`;
 	const div = document.querySelector("[fx-action]")!;
+
+	// Add config listener to inject mock fetch
+	div.addEventListener("fx:config", (e: Event) => {
+		(e as FxConfigEvent).cfg.fetch = mockFetch("<p>Result</p>", trackCalls);
+	});
 
 	fixi.process(div);
 
-	// Should work with mouseenter now
-	assert.ok(true, "Custom trigger attribute processed");
+	// Dispatch mouseenter event
+	div.dispatchEvent(new CustomEvent("mouseenter", {bubbles: true}));
+
+	// Wait for async operations
+	await new Promise((resolve) => setTimeout(resolve, 50));
+
+	// Verify fetch was called with the custom trigger
+	assert.strictEqual(trackCalls.calls.length, 1, "Fetch should be called on mouseenter");
+	assert.strictEqual(trackCalls.calls[0], "/test", "Should use correct action URL");
 });
 
 test("Swap triggers fetch and fires lifecycle events", async () => {
@@ -390,16 +481,27 @@ test("Fixi dispatches correct event sequence", () => {
 	assert.deepStrictEqual(events, ["init", "inited"], "Should fire init then inited");
 });
 
-test("Fixi supports fx-trigger custom event", () => {
+test("Fixi supports fx-trigger custom event", async () => {
 	const fixi = new Fixi();
+	const trackCalls: {calls: string[]} = {calls: []};
 
-	document.body.innerHTML = `<div fx-action="/test" fx-trigger="mouseenter">Hover</div>`;
+	document.body.innerHTML = `
+    <div id="test" fx-action="/test" fx-trigger="mouseenter" fx-target="#test">Hover</div>
+  `;
+
 	const div = document.querySelector("[fx-action]")!;
+	div.addEventListener("fx:config", (e: Event) => {
+		(e as FxConfigEvent).cfg.fetch = mockFetch("<p>Result</p>", trackCalls);
+	});
 
 	fixi.process(div);
 
-	// Should work with mouseenter now
-	assert.ok(true, "Custom trigger attribute processed");
+	div.dispatchEvent(new CustomEvent("mouseenter", {bubbles: true}));
+
+	await new Promise((resolve) => setTimeout(resolve, 50));
+
+	assert.strictEqual(trackCalls.calls.length, 1, "Fetch should be called on mouseenter");
+	assert.strictEqual(trackCalls.calls[0], "/test", "Should use correct action URL");
 });
 
 test("Swap triggers fetch and fires lifecycle events", async () => {
@@ -416,7 +518,7 @@ test("Swap triggers fetch and fires lifecycle events", async () => {
 
 	// Inject mock fetch via fx:config event
 	content.addEventListener("fx:config", (e: Event) => {
-		(e as CustomEvent).detail.cfg.fetch = mockFetch("<p>New Content</p>", trackCalls);
+		(e as FxConfigEvent).cfg.fetch = mockFetch("<p>New Content</p>", trackCalls);
 	});
 
 	content.addEventListener("fx:before", () => events.push("before"));
@@ -438,4 +540,32 @@ test("Swap triggers fetch and fires lifecycle events", async () => {
 	assert.ok(events.includes("swapped"), "fx:swapped should fire");
 	assert.deepStrictEqual(events, ["before", "after", "swapped"], "Events should fire in correct order");
 	assert.strictEqual(content.innerHTML, "<p>New Content</p>", "Content should be replaced");
+});
+
+test("Fixi supports fx-trigger intersect", async () => {
+	const fixi = new Fixi();
+	const trackCalls: {calls: string[]} = {calls: []};
+
+	document.body.innerHTML = `
+    <div id="test" fx-action="/test" fx-trigger="intersect" fx-target="#test">Content</div>
+  `;
+
+	const div = document.querySelector("[fx-action]")!;
+	div.addEventListener("fx:config", (e: Event) => {
+		(e as FxConfigEvent).cfg.fetch = mockFetch("<p>Result</p>", trackCalls);
+	});
+
+	fixi.process(div);
+
+	// Verify observer was created
+	const observer = mockIntersectionObservers.get(div);
+	assert.ok(observer, "IntersectionObserver should be created");
+
+	// Simulate intersection
+	simulateIntersection(div, true);
+
+	await new Promise((resolve) => setTimeout(resolve, 50));
+
+	assert.strictEqual(trackCalls.calls.length, 1, "Fetch should be called when element intersects");
+	assert.strictEqual(trackCalls.calls[0], "/test", "Should use correct action URL");
 });

@@ -30,6 +30,7 @@ export class Fixi {
 	#observer: MutationObserver | null = null;
 	#elementRequests = new WeakMap<Element, Set<FixiConfig>>();
 	#boundElements = new WeakSet<Element>();
+	#intersectionObservers = new WeakMap<Element, IntersectionObserver>();
 
 	start(): void {
 		if (this.#observer) return;
@@ -86,16 +87,21 @@ export class Fixi {
 			const indicatorSelector = this.#attr(elt, "fx-indicator");
 			const indicator = indicatorSelector === "" ? elt : document.querySelector(indicatorSelector);
 			const indicatorClass = this.#attr(elt, "fx-indicator-class", "fx-requesting");
-			const indicatorAttr = this.#attr(elt, "fx-indicator-attr");
+			const indicatorAttrs = this.#attr(elt, "fx-indicator-attr")
+				.split(",")
+				.map((s) => s.trim())
+				.filter((s) => s);
 
 			const setIndicator = (active: boolean, isError = false) => {
 				if (indicatorClass && indicator) {
 					indicator.classList.toggle(indicatorClass, active);
 					indicator.classList.toggle("fx-error", isError);
 				}
-				if (indicatorAttr && indicator) {
-					if (active) indicator.setAttribute(indicatorAttr, "");
-					else indicator.removeAttribute(indicatorAttr);
+				if (indicatorAttrs.length > 0 && indicator) {
+					indicatorAttrs.forEach((attr) => {
+						if (active) indicator.setAttribute(attr, "");
+						else indicator.removeAttribute(attr);
+					});
 				}
 			};
 
@@ -216,7 +222,35 @@ export class Fixi {
 					? "change"
 					: "click"
 		);
-		elt.addEventListener(evtType, handler, options);
+
+		// Handle intersection observer for "intersect" trigger
+		if (evtType === "intersect") {
+			const threshold = parseFloat(this.#attr(elt, "fx-intersect-threshold", "0"));
+			const rootMargin = this.#attr(elt, "fx-intersect-root-margin", "0px");
+			
+			const obs = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (entry.isIntersecting) {
+							obs.unobserve(elt);
+							this.#intersectionObservers.delete(elt);
+							handler(new Event("intersect"));
+							return;
+						}
+					}
+				},
+				{
+					threshold: isNaN(threshold) ? 0 : threshold,
+					rootMargin: rootMargin,
+				}
+			);
+			
+			this.#intersectionObservers.set(elt, obs);
+			obs.observe(elt);
+		} else {
+			// Normal event listener for other triggers
+			elt.addEventListener(evtType, handler, options);
+		}
 
 		elt.dispatchEvent(new FxInitedEvent());
 	}
