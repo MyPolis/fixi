@@ -1,3 +1,12 @@
+import {FxInitEvent} from "../events/fx-init.js";
+import {FxInitedEvent} from "../events/fx-inited.js";
+import {FxConfigEvent} from "../events/fx-config.js";
+import {FxBeforeEvent} from "../events/fx-before.js";
+import {FxAfterEvent} from "../events/fx-after.js";
+import {FxErrorEvent} from "../events/fx-error.js";
+import {FxFinallyEvent} from "../events/fx-finally.js";
+import {FxSwappedEvent} from "../events/fx-swapped.js";
+
 export interface FixiConfig {
 	trigger: Event;
 	action: string;
@@ -44,12 +53,6 @@ export class Fixi {
 		this.process(document.body);
 	}
 
-	#send(elt: EventTarget, type: string, detail: Record<string, unknown>, bubbles: boolean = true): boolean {
-		return elt.dispatchEvent(
-			new CustomEvent("fx:" + type, {detail, cancelable: true, bubbles: bubbles, composed: true})
-		);
-	}
-
 	#attr(elt: Element, name: string, defaultVal: string = ""): string {
 		return elt.getAttribute(name) || defaultVal;
 	}
@@ -72,7 +75,8 @@ export class Fixi {
 	#bindElement(elt: Element): void {
 		const options: AddEventListenerOptions = {};
 
-		if (this.#boundElements.has(elt) || this.#isIgnored(elt) || !this.#send(elt, "init", {options})) return;
+		if (this.#boundElements.has(elt) || this.#isIgnored(elt) || !elt.dispatchEvent(new FxInitEvent(options)))
+			return;
 
 		this.#boundElements.add(elt);
 		this.#elementRequests.set(elt, new Set<FixiConfig>());
@@ -133,7 +137,7 @@ export class Fixi {
 				fetch: fetch.bind(window)
 			};
 
-			const go = this.#send(elt, "config", {cfg, requests: reqs});
+			const go = elt.dispatchEvent(new FxConfigEvent(cfg, reqs));
 			if (cfg.preventTrigger) evt.preventDefault();
 			if (!go || cfg.drop) return;
 
@@ -159,7 +163,7 @@ export class Fixi {
 					if (!result) return;
 				}
 
-				if (!this.#send(elt, "before", {cfg, requests: reqs})) return;
+				if (!elt.dispatchEvent(new FxBeforeEvent(cfg, reqs))) return;
 
 				const fetchInit: RequestInit = {
 					method: cfg.method,
@@ -171,14 +175,14 @@ export class Fixi {
 				cfg.response = await cfg.fetch(cfg.action, fetchInit);
 				cfg.text = await cfg.response.text();
 
-				if (!this.#send(elt, "after", {cfg})) return;
+				if (!elt.dispatchEvent(new FxAfterEvent(cfg))) return;
 			} catch (error) {
 				const err = error instanceof Error ? error : new Error(String(error));
-				this.#send(elt, "error", {cfg, error: err});
+				elt.dispatchEvent(new FxErrorEvent(cfg, err));
 				return;
 			} finally {
 				reqs.delete(cfg);
-				this.#send(elt, "finally", {cfg});
+				elt.dispatchEvent(new FxFinallyEvent(cfg));
 			}
 
 			const doSwap = async () => {
@@ -199,8 +203,8 @@ export class Fixi {
 				await doSwap();
 			}
 
-			this.#send(elt, "swapped", {cfg});
-			if (!document.contains(elt)) this.#send(document, "swapped", {cfg});
+			elt.dispatchEvent(new FxSwappedEvent(cfg));
+			if (!document.contains(elt)) document.dispatchEvent(new FxSwappedEvent(cfg));
 		};
 
 		const evtType = this.#attr(
@@ -214,7 +218,7 @@ export class Fixi {
 		);
 		elt.addEventListener(evtType, handler, options);
 
-		this.#send(elt, "inited", {}, false);
+		elt.dispatchEvent(new FxInitedEvent());
 	}
 }
 
