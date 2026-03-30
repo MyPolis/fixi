@@ -85,25 +85,33 @@ test("Fixi ignores elements with fx-ignore attribute", () => {
 // EVENT TRIGGER TESTS
 // =============================================================================
 
-test("Fixi binds event listeners based on element type", () => {
+test("Fixi binds correct event listeners based on element type", async () => {
 	const fixi = new Fixi();
+	let trackCalls: {calls: string[]} = {calls: []};
 
 	// Button should get click listener
-	document.body.innerHTML = `<button fx-action="/test">Click</button>`;
-	let button = document.querySelector("[fx-action]")!;
+	document.body.innerHTML = `<button id="btn" fx-action="/test-btn" fx-target="#btn">Click</button>`;
+	const button = document.querySelector("#btn")!;
+	injectMockFetch(button, "<p>Button</p>", trackCalls);
 	fixi.process(button);
 
-	// Form should get submit listener
-	document.body.innerHTML = `<form fx-action="/test"><button type="submit">Submit</button></form>`;
-	let form = document.querySelector("[fx-action]")!;
-	fixi.process(form);
+	// Trigger click and verify action fires
+	button.dispatchEvent(new CustomEvent("click", {bubbles: true}));
+
+	await new Promise((resolve) => setTimeout(resolve, 10));
+	assert.ok(trackCalls.calls.includes("/test-btn"), "Button should trigger on click");
 
 	// Input should get change listener
-	document.body.innerHTML = `<input fx-action="/test" />`;
-	let input = document.querySelector("[fx-action]")!;
+	document.body.innerHTML = `<input id="inp" fx-action="/test-input" fx-target="#inp" />`;
+	const input = document.querySelector("#inp")!;
+	injectMockFetch(input, "<p>Input</p>", trackCalls);
 	fixi.process(input);
 
-	assert.ok(true, "Event listeners bound without errors");
+	// Trigger change and verify action fires
+	input.dispatchEvent(new Event("change", {bubbles: true}));
+
+	await new Promise((resolve) => setTimeout(resolve, 10));
+	assert.ok(trackCalls.calls.includes("/test-input"), "Input should trigger on change");
 });
 
 test("Fixi supports fx-trigger custom event", async () => {
