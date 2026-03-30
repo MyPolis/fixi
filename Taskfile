@@ -7,8 +7,8 @@ PATH="./node_modules/.bin:$PATH"
 function build {
   rm -rf ./dist
 
-  # Build JavaScript bundles with esbuild (minified)
-  esbuild ./src/core/index.ts --bundle --minify --format=esm --outfile=./dist/core/index.js --platform=browser
+  # Build JavaScript bundles with esbuild (minified, ES2022 target)
+  esbuild ./src/core/index.ts --bundle --minify --format=esm --target=es2022 --outfile=./dist/core/index.js --platform=browser
   # esbuild ./src/extensions/disable.ts --bundle --minify --format=esm --outfile=./dist/extensions/disable.js --platform=browser
 
   # Generate TypeScript declarations

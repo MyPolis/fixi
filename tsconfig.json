@@ -13,7 +13,7 @@
 		"declarationMap": true,
 		"declarationDir": "./dist/types",
 		"sourceMap": true,
-		"lib": ["ES2024", "DOM", "DOM.Iterable"]
+		"lib": ["ES2022", "DOM", "DOM.Iterable"]
 	},
 	"include": ["./src/**/*"]
 }
