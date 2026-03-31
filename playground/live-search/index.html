@@ -184,47 +184,54 @@
 				font-size: 3rem;
 				margin-bottom: 1rem;
 			}
+
+			::view-transition-group(none) {
+				animation: none;
+			}
 		</style>
 		<script type="module">
 			import "../../dist/core/index.js";
 		</script>
 	</head>
 	<body>
-		<a
-			href="../"
-			class="back-link"
-			>← Back to Playground</a
-		>
-		<h1>🔍 Live Search</h1>
-		<div class="demo-info">
-			<p>
-				Type to search through items instantly. Uses <code>fx-debounce="300ms"</code>
-				to wait 300ms after you stop typing before making the request.
-			</p>
-			<p>
-				Matches are highlighted with <b>bold text</b>. No minimum character limit - search starts immediately.
-			</p>
-		</div>
-
-		<div class="search-container">
-			<div class="search-input-wrapper">
-				<span class="search-icon">🔍</span>
-				<input
-					type="text"
-					class="search-input"
-					placeholder="Search projects, components, integrations..."
-					fx-action="/api/search"
-					fx-target="#search-results"
-					fx-swap="innerHTML"
-					fx-trigger="keyup"
-					fx-debounce="300ms"
-					fx-indicator
-					name="q"
-					autocomplete="off"
-				/>
-				<div class="search-spinner"></div>
+		<header style="view-transition-name: disabled">
+			<a
+				href="../"
+				class="back-link"
+				>← Back to Playground</a
+			>
+			<h1>🔍 Live Search</h1>
+			<div class="demo-info">
+				<p>
+					Type to search through items instantly. Uses <code>fx-debounce="300ms"</code>
+					to wait 300ms after you stop typing before making the request.
+				</p>
+				<p>
+					Matches are highlighted with <b>bold text</b>. No minimum character limit - search starts
+					immediately.
+				</p>
 			</div>
-		</div>
+
+			<div class="search-container">
+				<div class="search-input-wrapper">
+					<span class="search-icon">🔍</span>
+					<input
+						type="text"
+						class="search-input"
+						placeholder="Search projects, components, integrations..."
+						fx-action="/api/search"
+						fx-target="#search-results"
+						fx-swap="innerHTML"
+						fx-trigger="input"
+						fx-debounce="80ms"
+						fx-indicator
+						name="q"
+						autocomplete="off"
+					/>
+					<div class="search-spinner"></div>
+				</div>
+			</div>
+		</header>
 
 		<div
 			id="search-results"
