@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinite Scroll | Fixi Playground</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem 2rem 4rem;
+      line-height: 1.6;
+    }
+    .back-link {
+      color: #0066cc;
+      text-decoration: none;
+      display: inline-block;
+      position: sticky;
+      top: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    .back-link:hover { text-decoration: underline; }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #0066cc;
+      padding-bottom: 0.5rem;
+      margin-top: 1rem;
+    }
+    .demo-info {
+      background: #f0f7ff;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid #0066cc;
+    }
+    .demo-info p { margin: 0; }
+    code {
+      background: #e8e8e8;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    
+    /* Item card styles */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .item-card {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      animation: fade-in-up 0.3s ease-out;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .item-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .item-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    .item-description {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .item-id {
+      color: #999;
+      font-size: 0.85rem;
+    }
+    .infinite-loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      gap: 0.5rem;
+      color: #666;
+    }
+    .infinite-loader .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #0066cc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .infinite-end {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+  </style>
+  <script type="module">
+    import "../../dist/core/index.js";
+  </script>
+</head>
+<body>
+  <a href="../" class="back-link">← Back to Playground</a>
+  <h1>🔄 Infinite Scroll</h1>
+  <div class="demo-info">
+    <p>
+      Scroll to load more items automatically. Uses <code>fx-trigger="intersect"</code> with 
+      <code>fx-target="this"</code> and <code>fx-swap="outerHTML"</code> for declarative removal.
+    </p>
+  </div>
+  
+  <!-- Items load directly into the page -->
+  <!-- Initial loader triggers on intersect with the viewport -->
+  <div
+    class="item-batch infinite-loader"
+    fx-action="/api/items?page=1"
+    fx-target="this"
+    fx-swap="outerHTML"
+    fx-trigger="intersect"
+    fx-intersect-threshold="0"
+    fx-intersect-root-margin="100px"
+  >
+    <div class="spinner"></div>
+    <span>Loading items...</span>
+  </div>
+</body>
+</html>

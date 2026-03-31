@@ -37,7 +37,8 @@ coverage/
 __snapshots__/
 *.test.js.snap
 
-# Temporary files
+# opencode
+.opencode/
 *.tmp
 .temp/
 tmp/

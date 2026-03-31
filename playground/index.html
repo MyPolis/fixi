@@ -13,472 +13,113 @@
 			}
 			body {
 				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-				max-width: 800px;
+				max-width: 1200px;
 				margin: 0 auto;
 				padding: 2rem;
 				line-height: 1.6;
+				background: #f5f7fa;
 			}
 			h1 {
 				color: #333;
-				border-bottom: 2px solid #0066cc;
-				padding-bottom: 0.5rem;
-			}
-			/* Demo sections */
-			.demo {
-				background: #f5f5f5;
-				padding: 1.5rem;
-				margin: 1.5rem 0;
-				border-radius: 8px;
-			}
-			.demo h3 {
-				margin-top: 0;
-				color: #555;
-			}
-			/* Buttons */
-			button {
-				padding: 0.75rem 1.5rem;
-				margin: 0.5rem;
-				border: none;
-				background: #0066cc;
-				color: white;
-				border-radius: 4px;
-				cursor: pointer;
-				font-size: 0.9rem;
-			}
-			button:hover {
-				background: #0052a3;
-			}
-			button.fx-requesting {
-				opacity: 0.6;
-				cursor: wait;
-			}
-			/* Result containers */
-			.result {
-				margin-top: 1rem;
-				padding: 1rem;
-				background: white;
-				border: 1px solid #ddd;
-				border-radius: 4px;
-				min-height: 50px;
-			}
-			/* Code styling */
-			code {
-				background: #e8e8e8;
-				padding: 0.2rem 0.4rem;
-				border-radius: 3px;
-				font-size: 0.9em;
-			}
-			pre {
-				background: #2d2d2d;
-				color: #f8f8f2;
-				padding: 1rem;
-				border-radius: 4px;
-				overflow-x: auto;
-			}
-			/* Intersection observer demo */
-			.intersection-demo {
-				height: 150vh;
-				background: linear-gradient(to bottom, #f5f5f5 0%, #e0e0e0 100%);
-				padding: 2rem;
-				margin: 2rem 0;
-				border-radius: 8px;
-			}
-			.intersection-box {
-				background: #0066cc;
-				color: white;
-				padding: 2rem;
-				border-radius: 8px;
 				text-align: center;
-				margin-top: 100vh;
-			}
-			/* View Transitions Demo */
-			.animation-card {
-				background: #0066cc;
-				color: white;
-				padding: 2rem;
-				border-radius: 12px;
-				margin-top: 1rem;
-				min-height: 120px;
-				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-				view-transition-name: anim-card;
-			}
-			.anim-btn {
-				margin: 0.25rem;
-			}
-			.anim-note {
-				font-size: 0.85rem;
-				color: #666;
-				margin-top: 0.5rem;
-			}
-			/* Animation keyframes */
-			@keyframes slide-out {
-				from {
-					transform: translateX(0);
-					opacity: 1;
-				}
-				to {
-					transform: translateX(-100%);
-					opacity: 0;
-				}
-			}
-			@keyframes slide-in {
-				from {
-					transform: translateX(100%);
-					opacity: 0;
-				}
-				to {
-					transform: translateX(0);
-					opacity: 1;
-				}
-			}
-			@keyframes zoom-out {
-				from {
-					transform: scale(1);
-					opacity: 1;
-				}
-				to {
-					transform: scale(0.5);
-					opacity: 0;
-				}
-			}
-			@keyframes zoom-in {
-				from {
-					transform: scale(1.5);
-					opacity: 0;
-				}
-				to {
-					transform: scale(1);
-					opacity: 1;
-				}
-			}
-			@keyframes fade-blur-out {
-				from {
-					filter: blur(0px);
-					opacity: 1;
-				}
-				to {
-					filter: blur(10px);
-					opacity: 0;
-				}
-			}
-			@keyframes fade-blur-in {
-				from {
-					filter: blur(10px);
-					opacity: 0;
-				}
-				to {
-					filter: blur(0px);
-					opacity: 1;
-				}
-			}
-			@keyframes flip-out {
-				from {
-					transform: perspective(400px) rotateY(0deg);
-					opacity: 1;
-				}
-				to {
-					transform: perspective(400px) rotateY(90deg);
-					opacity: 0;
-				}
-			}
-			@keyframes flip-in {
-				from {
-					transform: perspective(400px) rotateY(-90deg);
-					opacity: 0;
-				}
-				to {
-					transform: perspective(400px) rotateY(0deg);
-					opacity: 1;
-				}
-			}
-			@keyframes fade-out {
-				from {
-					opacity: 1;
-				}
-				to {
-					opacity: 0;
-				}
-			}
-			@keyframes fade-in {
-				from {
-					opacity: 0;
-				}
-				to {
-					opacity: 1;
-				}
-			}
-			/* View Transition pseudo-elements */
-			::view-transition-old(anim-card) {
-				animation: var(--vt-out-animation, fade-out) 0.3s ease-out;
-			}
-			::view-transition-new(anim-card) {
-				animation: var(--vt-in-animation, fade-in) 0.3s ease-out;
-			}
-			/* Infinite scroll user list styles */
-			@keyframes spin {
-				from {
-					transform: rotate(0deg);
-				}
-				to {
-					transform: rotate(360deg);
-				}
-			}
-			@keyframes fade-in-up {
-				from {
-					opacity: 0;
-					transform: translateY(20px);
-				}
-				to {
-					opacity: 1;
-					transform: translateY(0);
-				}
-			}
-			.user-list-container {
-				max-height: 500px;
-				overflow-y: auto;
-				background: #f8f9fa;
-				border-radius: 8px;
-				padding: 1rem;
-				border: 1px solid #e0e0e0;
-			}
-			.user-card {
-				display: flex;
-				align-items: center;
-				padding: 1rem;
 				margin-bottom: 0.5rem;
+			}
+			.subtitle {
+				text-align: center;
+				color: #666;
+				margin-bottom: 2rem;
+			}
+			.apps-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+				gap: 1.5rem;
+			}
+			.app-card {
 				background: white;
-				border-radius: 8px;
-				border: 1px solid #e0e0e0;
-				animation: fade-in-up 0.3s ease-out;
+				border-radius: 12px;
+				padding: 1.5rem;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				transition:
+					transform 0.2s,
+					box-shadow 0.2s;
+				text-decoration: none;
+				color: inherit;
+				display: block;
 			}
-			.user-avatar {
-				width: 48px;
-				height: 48px;
-				border-radius: 50%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				color: white;
-				font-weight: bold;
-				font-size: 1.2rem;
-				margin-right: 1rem;
-				flex-shrink: 0;
+			.app-card:hover {
+				transform: translateY(-4px);
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 			}
-			.user-info {
-				flex: 1;
-				min-width: 0;
+			.app-icon {
+				font-size: 2.5rem;
+				margin-bottom: 0.75rem;
 			}
-			.user-name {
+			.app-title {
+				font-size: 1.25rem;
 				font-weight: 600;
 				color: #333;
-				margin-bottom: 0.25rem;
+				margin-bottom: 0.5rem;
 			}
-			.user-email {
+			.app-description {
 				color: #666;
-				font-size: 0.9rem;
+				font-size: 0.95rem;
+				line-height: 1.5;
 			}
-			.user-id {
-				color: #999;
-				font-size: 0.85rem;
-			}
-			.infinite-loader {
+			.app-tags {
+				margin-top: 1rem;
 				display: flex;
-				align-items: center;
-				justify-content: center;
-				padding: 2rem;
+				flex-wrap: wrap;
 				gap: 0.5rem;
-				color: #666;
 			}
-			.infinite-loader .spinner {
-				width: 24px;
-				height: 24px;
-				border: 3px solid #e0e0e0;
-				border-top-color: #0066cc;
-				border-radius: 50%;
-				animation: spin 1s linear infinite;
-			}
-			.infinite-end {
-				text-align: center;
-				padding: 2rem;
-				color: #999;
+			.tag {
+				background: #e8f0fe;
+				color: #0066cc;
+				padding: 0.25rem 0.75rem;
+				border-radius: 20px;
+				font-size: 0.8rem;
 			}
 		</style>
-		<script type="module">
-			import "../dist/core/index.js";
-
-			document.getElementById("anim-target").addEventListener("fx:swapped", () => {
-				setTimeout(() => {
-					document.documentElement.style.removeProperty("--vt-out-animation");
-					document.documentElement.style.removeProperty("--vt-in-animation");
-				}, 500);
-			});
-		</script>
 	</head>
 	<body>
 		<h1>🚀 Fixi Playground</h1>
-		<p>Test the library with real API calls. Check the console for event logs.</p>
-		<div class="demo">
-			<h3>Basic Click</h3>
-			<p>Simple <code>fx-action</code> with <code>fx-target</code> and <code>fx-swap</code></p>
-			<button
-				fx-action="/api/test"
-				fx-target="#result1"
-				fx-swap="innerHTML"
-			>
-				Load Content
-			</button>
-			<div
-				id="result1"
-				class="result"
-			>
-				Click the button to load content...
+		<p class="subtitle">Explore fixi UI patterns through interactive mini-apps</p>
+
+		<div class="apps-grid">
+		<a
+			href="./infinite-scroll/"
+			class="app-card"
+		>
+			<div class="app-icon">🔄</div>
+			<div class="app-title">Infinite Scroll</div>
+			<div class="app-description">
+				Scroll to load more items automatically. Demonstrates the self-replacing loader pattern with
+				intersection observer.
 			</div>
-		</div>
-		<div class="demo">
-			<h3>With Loading Indicator</h3>
-			<p>Using <code>fx-indicator</code> to show loading state</p>
-			<button
-				fx-action="/api/delay"
-				fx-target="#result2"
-				fx-swap="innerHTML"
-				fx-indicator
-			>
-				Load with Delay (1s)
-			</button>
-			<div
-				id="result2"
-				class="result"
-			>
-				This will take 1 second...
+			<div class="app-tags">
+				<span class="tag">intersect</span>
+				<span class="tag">outerHTML</span>
+				<span class="tag">pagination</span>
 			</div>
-		</div>
-		<div class="demo">
-			<h3>Custom Trigger: Mouseenter</h3>
-			<p>Using <code>fx-trigger="mouseenter"</code></p>
-			<div
-				fx-action="/api/like"
-				fx-target="#result3"
-				fx-swap="innerHTML"
-				fx-trigger="mouseenter"
-				style="background: #f0f0f0; padding: 1rem; border-radius: 4px; cursor: pointer"
-			>
-				👆 Hover over this box
+		</a>
+
+		<a
+			href="./live-search/"
+			class="app-card"
+		>
+			<div class="app-icon">🔍</div>
+			<div class="app-title">Live Search</div>
+			<div class="app-description">
+				Type to search through items instantly. Demonstrates debounced requests with delay trigger
+				and loading indicators.
 			</div>
-			<div
-				id="result3"
-				class="result"
-			>
-				Hover to trigger...
+			<div class="app-tags">
+				<span class="tag">debounce</span>
+				<span class="tag">keyup</span>
+				<span class="tag">indicator</span>
 			</div>
-		</div>
-		<div class="demo">
-			<h3>Multiple Attributes</h3>
-			<p>Using <code>fx-indicator-attr</code> for accessibility</p>
-			<button
-				fx-action="/api/delay"
-				fx-target="#result4"
-				fx-swap="innerHTML"
-				fx-indicator
-				fx-indicator-attr="disabled,aria-busy"
-			>
-				Load (with disabled state)
-			</button>
-			<div
-				id="result4"
-				class="result"
-			>
-				Button will disable during request...
-			</div>
-		</div>
-		<div class="demo">
-			<h3>✨ View Transitions (Chrome 111+)</h3>
-			<p>Smooth animated transitions between content swaps.</p>
-			<div style="margin-bottom: 1rem">
-				<button
-					class="anim-btn"
-					onclick="
-						document.documentElement.style.setProperty('--vt-out-animation', 'slide-out');
-						document.documentElement.style.setProperty('--vt-in-animation', 'slide-in');
-					"
-					fx-action="/api/animation/slide"
-					fx-target="#anim-target"
-					fx-swap="innerHTML"
-				>
-					🌊 Slide
-				</button>
-				<button
-					class="anim-btn"
-					onclick="
-						document.documentElement.style.setProperty('--vt-out-animation', 'zoom-out');
-						document.documentElement.style.setProperty('--vt-in-animation', 'zoom-in');
-					"
-					fx-action="/api/animation/zoom"
-					fx-target="#anim-target"
-					fx-swap="innerHTML"
-				>
-					🔍 Zoom
-				</button>
-				<button
-					class="anim-btn"
-					onclick="
-						document.documentElement.style.setProperty('--vt-out-animation', 'flip-out');
-						document.documentElement.style.setProperty('--vt-in-animation', 'flip-in');
-					"
-					fx-action="/api/animation/flip"
-					fx-target="#anim-target"
-					fx-swap="innerHTML"
-				>
-					🔄 Flip
-				</button>
-				<button
-					class="anim-btn"
-					onclick="
-						document.documentElement.style.setProperty('--vt-out-animation', 'fade-blur-out');
-						document.documentElement.style.setProperty('--vt-in-animation', 'fade-blur-in');
-					"
-					fx-action="/api/animation/blur"
-					fx-target="#anim-target"
-					fx-swap="innerHTML"
-				>
-					🌫️ Blur
-				</button>
-			</div>
-			<div
-				id="anim-target"
-				class="animation-card"
-			>
-				<h4 style="margin: 0 0 0.5rem 0">✨ Animation Demo</h4>
-				<p style="margin: 0; opacity: 0.9">Click a button above to see different View Transition animations!</p>
-			</div>
-			<p class="anim-note">
-				<strong>Note:</strong> View Transitions only work in Chrome 111+. Other browsers will show instant
-				swaps.
-			</p>
-		</div>
-		<div class="demo">
-			<h3>🔄 Infinite User List</h3>
-			<p>
-				Scroll to load more users automatically. Uses <code>fx-trigger="intersect"</code> with <code>fx-target="this"</code> 
-				and <code>fx-swap="outerHTML"</code> for declarative removal.
-			</p>
-			<div
-				id="user-list"
-				class="user-list-container"
-			>
-				<!-- Initial loader triggers on intersect, gets replaced entirely by response -->
-				<div
-					class="user-batch infinite-loader"
-					fx-action="/api/users?page=1"
-					fx-target="this"
-					fx-swap="outerHTML"
-					fx-trigger="intersect"
-					fx-intersect-threshold="0"
-					fx-intersect-root-margin="50px"
-				>
-					<div class="spinner"></div>
-					<span>Loading users...</span>
-				</div>
-			</div>
+		</a>
+
+			<!-- Add more app cards here as you create them -->
 		</div>
 	</body>
 </html>
