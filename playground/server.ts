@@ -36,12 +36,12 @@ const routes: Route[] = [
 		handler: async (req) => {
 			// Add natural delay (300-800ms) to simulate real network
 			await new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 500));
-			
+
 			const page = parseInt(req.url.searchParams.get("page") || "1", 10);
-			
+
 			return {
 				status: 200,
-				body: createItemBatch(page, 10, 5),
+				body: createItemBatch(page, 5, 5),
 				headers: {"Content-Type": "text/html"}
 			};
 		}
@@ -50,10 +50,10 @@ const routes: Route[] = [
 		url: "/api/search",
 		handler: async (req) => {
 			// Add small delay to simulate network and show loading state
-			await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 300));
-			
+			await new Promise((resolve) => setTimeout(resolve, 50 + Math.random() * 100));
+
 			const query = req.url.searchParams.get("q") || "";
-			
+
 			return {
 				status: 200,
 				body: createSearchResponse(query),
@@ -93,7 +93,7 @@ const server = http.createServer(async (req: http.IncomingMessage, res: ServerRe
 				const extendedReq = req as unknown as Request;
 				extendedReq.url = url;
 				extendedReq.match = match;
-				
+
 				const result = await route.handler(extendedReq);
 				res.writeHead(result.status, result.headers);
 				res.end(result.body);
