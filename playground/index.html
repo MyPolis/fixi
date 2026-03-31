@@ -214,6 +214,94 @@
 			::view-transition-new(anim-card) {
 				animation: var(--vt-in-animation, fade-in) 0.3s ease-out;
 			}
+			/* Infinite scroll user list styles */
+			@keyframes spin {
+				from {
+					transform: rotate(0deg);
+				}
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			@keyframes fade-in-up {
+				from {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+			.user-list-container {
+				max-height: 500px;
+				overflow-y: auto;
+				background: #f8f9fa;
+				border-radius: 8px;
+				padding: 1rem;
+				border: 1px solid #e0e0e0;
+			}
+			.user-card {
+				display: flex;
+				align-items: center;
+				padding: 1rem;
+				margin-bottom: 0.5rem;
+				background: white;
+				border-radius: 8px;
+				border: 1px solid #e0e0e0;
+				animation: fade-in-up 0.3s ease-out;
+			}
+			.user-avatar {
+				width: 48px;
+				height: 48px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				font-weight: bold;
+				font-size: 1.2rem;
+				margin-right: 1rem;
+				flex-shrink: 0;
+			}
+			.user-info {
+				flex: 1;
+				min-width: 0;
+			}
+			.user-name {
+				font-weight: 600;
+				color: #333;
+				margin-bottom: 0.25rem;
+			}
+			.user-email {
+				color: #666;
+				font-size: 0.9rem;
+			}
+			.user-id {
+				color: #999;
+				font-size: 0.85rem;
+			}
+			.infinite-loader {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2rem;
+				gap: 0.5rem;
+				color: #666;
+			}
+			.infinite-loader .spinner {
+				width: 24px;
+				height: 24px;
+				border: 3px solid #e0e0e0;
+				border-top-color: #0066cc;
+				border-radius: 50%;
+				animation: spin 1s linear infinite;
+			}
+			.infinite-end {
+				text-align: center;
+				padding: 2rem;
+				color: #999;
+			}
 		</style>
 		<script type="module">
 			import "../dist/core/index.js";
@@ -367,19 +455,29 @@
 				swaps.
 			</p>
 		</div>
-		<div class="intersection-demo">
-			<h3>Intersection Observer</h3>
-			<p>Scroll down to trigger when element comes into view</p>
+		<div class="demo">
+			<h3>🔄 Infinite User List</h3>
+			<p>
+				Scroll to load more users automatically. Uses <code>fx-trigger="intersect"</code> with <code>fx-target="this"</code> 
+				and <code>fx-swap="outerHTML"</code> for declarative removal.
+			</p>
 			<div
-				class="intersection-box"
-				fx-action="/api/test"
-				fx-target="#result5"
-				fx-swap="innerHTML"
-				fx-trigger="intersect"
-				fx-intersect-threshold="0.5"
+				id="user-list"
+				class="user-list-container"
 			>
-				📦 Scroll to see me!
-				<div id="result5">Will load when 50% visible...</div>
+				<!-- Initial loader triggers on intersect, gets replaced entirely by response -->
+				<div
+					class="user-batch infinite-loader"
+					fx-action="/api/users?page=1"
+					fx-target="this"
+					fx-swap="outerHTML"
+					fx-trigger="intersect"
+					fx-intersect-threshold="0"
+					fx-intersect-root-margin="50px"
+				>
+					<div class="spinner"></div>
+					<span>Loading users...</span>
+				</div>
 			</div>
 		</div>
 	</body>
