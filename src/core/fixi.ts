@@ -265,26 +265,42 @@ export class Fixi {
 
 			if (debounceMs > 0) {
 				// Debounce: wait for delay after last event (trailing edge)
+				// New events abort any in-flight request from this element
 				let timer: ReturnType<typeof setTimeout> | null = null;
+				const elementReqs = this.#elementRequests.get(elt)!;
 				wrappedHandler = async (evt: Event) => {
+					// Abort any in-flight request from previous debounce
+					for (const cfg of elementReqs) {
+						cfg.abort();
+						elementReqs.delete(cfg);
+					}
 					if (timer) clearTimeout(timer);
 					timer = setTimeout(() => handler(evt), debounceMs);
 				};
 			} else if (throttleMs > 0) {
 				// Throttle: limit to once per period (trailing edge)
+				// New events that trigger requests abort any in-flight ones
 				let lastTime = 0;
 				let timer: ReturnType<typeof setTimeout> | null = null;
+				const elementReqs = this.#elementRequests.get(elt)!;
+				const abortPending = () => {
+					for (const cfg of elementReqs) {
+						cfg.abort();
+						elementReqs.delete(cfg);
+					}
+				};
 				wrappedHandler = async (evt: Event) => {
 					const now = Date.now();
 					const remaining = throttleMs - (now - lastTime);
-
 					if (remaining <= 0) {
 						// Enough time has passed, execute immediately
+						abortPending();
 						lastTime = now;
 						handler(evt);
 					} else if (!timer) {
 						// Schedule execution at end of throttle period
 						timer = setTimeout(() => {
+							abortPending();
 							lastTime = Date.now();
 							timer = null;
 							handler(evt);
