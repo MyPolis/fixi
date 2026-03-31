@@ -58,6 +58,15 @@ export class Fixi {
 		return elt.getAttribute(name) || defaultVal;
 	}
 
+	#parseDuration(str: string): number {
+		// Parse duration strings like "300", "300ms", "0.5s"
+		const match = str.match(/^(\d+(?:\.\d+)?)\s*(ms|s)?$/);
+		if (!match) return 0;
+		const val = parseFloat(match[1]);
+		const unit = match[2] || "ms";
+		return unit === "s" ? val * 1000 : val;
+	}
+
 	#isIgnored(elt: Element): boolean {
 		return elt.closest("[fx-ignore]") != null;
 	}
@@ -227,7 +236,7 @@ export class Fixi {
 		if (evtType === "intersect") {
 			const threshold = parseFloat(this.#attr(elt, "fx-intersect-threshold", "0"));
 			const rootMargin = this.#attr(elt, "fx-intersect-root-margin", "0px");
-			
+
 			const obs = new IntersectionObserver(
 				(entries) => {
 					for (const entry of entries) {
@@ -241,15 +250,51 @@ export class Fixi {
 				},
 				{
 					threshold: isNaN(threshold) ? 0 : threshold,
-					rootMargin: rootMargin,
+					rootMargin: rootMargin
 				}
 			);
-			
+
 			this.#intersectionObservers.set(elt, obs);
 			obs.observe(elt);
 		} else {
-			// Normal event listener for other triggers
-			elt.addEventListener(evtType, handler, options);
+			// Normal event listener with optional debounce/throttle
+			const debounceMs = this.#parseDuration(this.#attr(elt, "fx-debounce", "0"));
+			const throttleMs = this.#parseDuration(this.#attr(elt, "fx-throttle", "0"));
+
+			let wrappedHandler: typeof handler = handler;
+
+			if (debounceMs > 0) {
+				// Debounce: wait for delay after last event (trailing edge)
+				let timer: ReturnType<typeof setTimeout> | null = null;
+				wrappedHandler = async (evt: Event) => {
+					if (timer) clearTimeout(timer);
+					timer = setTimeout(() => handler(evt), debounceMs);
+				};
+			} else if (throttleMs > 0) {
+				// Throttle: limit to once per period (trailing edge)
+				let lastTime = 0;
+				let timer: ReturnType<typeof setTimeout> | null = null;
+				wrappedHandler = async (evt: Event) => {
+					const now = Date.now();
+					const remaining = throttleMs - (now - lastTime);
+
+					if (remaining <= 0) {
+						// Enough time has passed, execute immediately
+						lastTime = now;
+						handler(evt);
+					} else if (!timer) {
+						// Schedule execution at end of throttle period
+						timer = setTimeout(() => {
+							lastTime = Date.now();
+							timer = null;
+							handler(evt);
+						}, remaining);
+					}
+					// If timer already set, drop this event
+				};
+			}
+
+			elt.addEventListener(evtType, wrappedHandler, options);
 		}
 
 		elt.dispatchEvent(new FxInitedEvent());
