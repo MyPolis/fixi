@@ -222,7 +222,7 @@ export class Fixi {
 			if (!document.contains(elt)) document.dispatchEvent(new FxSwappedEvent(cfg));
 		};
 
-		const evtType = this.#attr(
+		const baseEvent = this.#attr(
 			elt,
 			"fx-trigger",
 			elt.matches("form")
@@ -233,7 +233,7 @@ export class Fixi {
 		);
 
 		// Handle intersection observer for "intersect" trigger
-		if (evtType === "intersect") {
+		if (baseEvent === "intersect") {
 			const threshold = parseFloat(this.#attr(elt, "fx-intersect-threshold", "0"));
 			const rootMargin = this.#attr(elt, "fx-intersect-root-margin", "0px");
 
@@ -264,43 +264,30 @@ export class Fixi {
 			let wrappedHandler: typeof handler = handler;
 
 			if (debounceMs > 0) {
-				// Debounce: wait for delay after last event (trailing edge)
-				// New events abort any in-flight request from this element
+				// Debounce: only execute after delay, reset timer on new events
 				let timer: ReturnType<typeof setTimeout> | null = null;
-				const elementReqs = this.#elementRequests.get(elt)!;
 				wrappedHandler = async (evt: Event) => {
-					// Abort any in-flight request from previous debounce
-					for (const cfg of elementReqs) {
-						cfg.abort();
-						elementReqs.delete(cfg);
-					}
 					if (timer) clearTimeout(timer);
-					timer = setTimeout(() => handler(evt), debounceMs);
+					timer = setTimeout(() => {
+						timer = null;
+						handler(evt);
+					}, debounceMs);
 				};
 			} else if (throttleMs > 0) {
-				// Throttle: limit to once per period (trailing edge)
-				// New events that trigger requests abort any in-flight ones
+				// Throttle: limit execution rate, queue trailing execution
 				let lastTime = 0;
 				let timer: ReturnType<typeof setTimeout> | null = null;
-				const elementReqs = this.#elementRequests.get(elt)!;
-				const abortPending = () => {
-					for (const cfg of elementReqs) {
-						cfg.abort();
-						elementReqs.delete(cfg);
-					}
-				};
 				wrappedHandler = async (evt: Event) => {
 					const now = Date.now();
 					const remaining = throttleMs - (now - lastTime);
+
 					if (remaining <= 0) {
 						// Enough time has passed, execute immediately
-						abortPending();
 						lastTime = now;
 						handler(evt);
 					} else if (!timer) {
 						// Schedule execution at end of throttle period
 						timer = setTimeout(() => {
-							abortPending();
 							lastTime = Date.now();
 							timer = null;
 							handler(evt);
@@ -310,7 +297,7 @@ export class Fixi {
 				};
 			}
 
-			elt.addEventListener(evtType, wrappedHandler, options);
+			elt.addEventListener(baseEvent, wrappedHandler, options);
 		}
 
 		elt.dispatchEvent(new FxInitedEvent());
